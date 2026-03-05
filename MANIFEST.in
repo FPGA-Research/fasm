@@ -7,12 +7,10 @@ include AUTHORS
 
 # Development support files
 include Makefile
-include requirements.txt
-include environment.yml
-include *.yapf
-include *.yml
 include pyproject.toml
+include setup.py
 include .clang-format
+include .style.yapf
 
 # Examples
 graft examples
@@ -37,13 +35,16 @@ recursive-include fasm/parser *.pyx
 exclude fasm/parser/*.c
 
 # antlr based parser
-include src/*
-include src/antlr/*
+include src/*.cpp src/*.h
+recursive-include src/antlr *
+recursive-include src/cmake *
+include third_party/antlr4_lib/*.jar
 
 # Excludes
 global-exclude .git
+global-exclude __pycache__
+global-exclude *.pyc
 exclude .gitmodules
 exclude update_version.py
 prune third_party
 prune .github
-prune __pycache__

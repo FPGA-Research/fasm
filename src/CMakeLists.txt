@@ -15,11 +15,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # minimum required CMAKE version
-CMAKE_MINIMUM_REQUIRED(VERSION 3.7 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.14 FATAL_ERROR)
 
 project(parse_fasm)
 
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/antlr4/runtime/Cpp/cmake)
+# Vendored cmake modules (ExternalAntlr4Cpp.cmake, FindANTLR.cmake).
+# These are copies from antlr4/runtime/Cpp/cmake so no submodule is needed.
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(CMAKE_CXX_STANDARD 17)
 set(ANTLR4_TAG e4c1a74)
@@ -35,7 +37,7 @@ if(ANTLR_RUNTIME_TYPE STREQUAL "static")
   # Required if linking to static library
   add_definitions(-DANTLR4CPP_STATIC)
 
-  # Build the static library.
+  # Build the static library (downloaded by ExternalAntlr4Cpp.cmake).
   include(ExternalAntlr4Cpp)
   set(ANTLR4_RUNTIME antlr4_static)
 else()
@@ -62,8 +64,19 @@ set(ANTLR_EXECUTABLE ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/antlr4_lib/antlr
 # add macros to generate ANTLR Cpp code from grammar
 find_package(ANTLR REQUIRED)
 
-# Unit testing library
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../third_party/googletest EXCLUDE_FROM_ALL googletest)
+# ---------------------------------------------------------------------------
+# Unit testing: use FetchContent so no git submodule is required
+# ---------------------------------------------------------------------------
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        703bd9caab50b139428cea1aaff9974ebee5742e
+    EXCLUDE_FROM_ALL
+)
+# Prevent googletest from overriding our compiler/linker settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
 # Lexer and parser targets
 antlr_target(FasmLexer antlr/FasmLexer.g4 LEXER

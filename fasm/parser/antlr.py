@@ -17,19 +17,27 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from ctypes import CDLL, POINTER, CFUNCTYPE, c_char, c_size_t, c_char_p
+import importlib
 import os
-from fasm.parser import antlr_to_tuple
 import platform
+from ctypes import CDLL, CFUNCTYPE, POINTER, c_char, c_char_p, c_size_t
 from pathlib import Path
 
-implementation = 'antlr'
+# Import antlr_to_tuple via importlib to avoid a circular import:
+# fasm.parser.__init__ → antlr.py → fasm.parser (partially initialised)
+# importlib.import_module goes straight to sys.modules / the .so file.
+try:
+    antlr_to_tuple = importlib.import_module("fasm.parser.antlr_to_tuple")
+except ImportError as _e:
+    raise ImportError("Could not import antlr_to_tuple: {}".format(_e)) from _e
+
+implementation = "antlr"
 """
 Module name of the default parser implementation, accessible as fasm.parser
 """
 
 try:
-    if platform.system() == 'Darwin':
+    if platform.system() == "Darwin":
         parse_fasm_lib = "libparse_fasm.dylib"
     else:
         parse_fasm_lib = "libparse_fasm.so"
@@ -37,11 +45,11 @@ try:
     here = Path(os.path.dirname(os.path.realpath(__file__)))
     parse_fasm = CDLL(str(here / parse_fasm_lib))
 except OSError:
-    raise ImportError('Could not find parse_fasm library.')
+    raise ImportError("Could not find parse_fasm library.")
 
 
 def parse_fasm_string(s):
-    """ Parse FASM string, returning list of FasmLine named tuples.
+    """Parse FASM string, returning list of FasmLine named tuples.
 
     >>> parse_fasm_string('a.b.c = 1')[0].set_feature.feature
     'a.b.c'
@@ -67,10 +75,10 @@ def parse_fasm_string(s):
     def error_callback(line, position, message):
         result[0] = None
         error[0] = Exception(
-            'Parse error at {}:{} - {}'.format(
-                line, position, message.decode('ascii')))
+            "Parse error at {}:{} - {}".format(line, position, message.decode("ascii"))
+        )
 
-    parse_fasm.from_string(bytes(s, 'ascii'), 0, callback, error_callback)
+    parse_fasm.from_string(bytes(s, "ascii"), 0, callback, error_callback)
 
     if error[0] is not None:
         raise error[0]
@@ -106,10 +114,10 @@ def parse_fasm_filename(filename):
     def error_callback(line, position, message):
         result[0] = None
         error[0] = Exception(
-            'Parse error at {}:{} - {}'.format(
-                line, position, message.decode('ascii')))
+            "Parse error at {}:{} - {}".format(line, position, message.decode("ascii"))
+        )
 
-    parse_fasm.from_file(bytes(filename, 'ascii'), 0, callback, error_callback)
+    parse_fasm.from_file(bytes(filename, "ascii"), 0, callback, error_callback)
 
     if error[0] is not None:
         raise error[0]

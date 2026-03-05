@@ -21,21 +21,24 @@ from __future__ import print_function
 
 import os.path
 
-from fasm.model import ValueFormat, SetFasmFeature, Annotation, FasmLine
+from fasm.model import Annotation, FasmLine, SetFasmFeature, ValueFormat
 from fasm.parser import parse_fasm_filename, parse_fasm_string
 
 try:
-    from fasm.version import version_str
-except ImportError:
-    version_str = "UNKNOWN"
-__dir__ = os.path.split(os.path.abspath(os.path.realpath(__file__)))[0]
-__version__ = version_str
+    from importlib.metadata import version as _pkg_version
+
+    __version__ = _pkg_version("fasm")
+except Exception:
+    __version__ = "UNKNOWN"
+
+# Preserve the historical name so existing consumers of fasm.version_str work.
+version_str = __version__
 
 
 def fasm_value_to_str(value, width, value_format):
-    """ Convert value from SetFasmFeature to a string. """
+    """Convert value from SetFasmFeature to a string."""
     if value_format == ValueFormat.PLAIN:
-        return '{}'.format(value)
+        return "{}".format(value)
     elif value_format == ValueFormat.VERILOG_HEX:
         return "{}'h{:X}".format(width, value)
     elif value_format == ValueFormat.VERILOG_DECIMAL:
@@ -60,7 +63,7 @@ def set_feature_width(set_feature):
 
 
 def set_feature_to_str(set_feature, check_if_canonical=False):
-    """ Convert SetFasmFeature tuple to string. """
+    """Convert SetFasmFeature tuple to string."""
     feature_width = set_feature_width(set_feature)
     max_feature_value = 2**feature_width
     assert set_feature.value < max_feature_value
@@ -73,27 +76,29 @@ def set_feature_to_str(set_feature, check_if_canonical=False):
         assert set_feature.value_format is None
 
     feature = set_feature.feature
-    address = ''
-    feature_value = ''
+    address = ""
+    feature_value = ""
 
     if set_feature.start is not None:
         if set_feature.end is not None:
-            address = '[{}:{}]'.format(set_feature.end, set_feature.start)
+            address = "[{}:{}]".format(set_feature.end, set_feature.start)
         else:
-            address = '[{}]'.format(set_feature.start)
+            address = "[{}]".format(set_feature.start)
 
     if set_feature.value_format is not None:
-        feature_value = ' = {}'.format(
+        feature_value = " = {}".format(
             fasm_value_to_str(
                 value=set_feature.value,
                 width=feature_width,
-                value_format=set_feature.value_format))
+                value_format=set_feature.value_format,
+            )
+        )
 
-    return '{}{}{}'.format(feature, address, feature_value)
+    return "{}{}{}".format(feature, address, feature_value)
 
 
 def canonical_features(set_feature):
-    """ Yield SetFasmFeature tuples that are of canonical form.
+    """Yield SetFasmFeature tuples that are of canonical form.
 
     EG width 1, and value 1.
     """
@@ -174,25 +179,27 @@ def fasm_line_to_string(fasm_line, canonical=False):
         parts.append(set_feature_to_str(fasm_line.set_feature))
 
     if fasm_line.annotations and not canonical:
-        annotations = '{{ {} }}'.format(
-            ', '.join(
+        annotations = "{{ {} }}".format(
+            ", ".join(
                 '{} = "{}"'.format(annotation.name, annotation.value)
-                for annotation in fasm_line.annotations))
+                for annotation in fasm_line.annotations
+            )
+        )
 
         parts.append(annotations)
 
     if fasm_line.comment is not None and not canonical:
-        comment = '#{}'.format(fasm_line.comment)
+        comment = "#{}".format(fasm_line.comment)
         parts.append(comment)
 
     if len(parts) == 0 and canonical:
         return
 
-    yield ' '.join(parts)
+    yield " ".join(parts)
 
 
 def fasm_tuple_to_string(model, canonical=False):
-    """ Returns string of FASM file for the model given.
+    """Returns string of FASM file for the model given.
 
     Note that calling parse_fasm_filename and then calling fasm_tuple_to_string
     will result in all optional whitespace replaced with one space.
@@ -206,4 +213,4 @@ def fasm_tuple_to_string(model, canonical=False):
     if canonical:
         lines = list(sorted(set(lines)))
 
-    return '\n'.join(lines) + '\n'
+    return "\n".join(lines) + "\n"

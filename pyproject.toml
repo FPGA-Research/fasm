@@ -1,2 +1,84 @@
 [build-system]
-requires = ["setuptools", "wheel", "cython"]
+requires = [
+    "setuptools>=64",
+    "wheel",
+    "cython>=3",
+    "packaging",
+    "setuptools-scm>=8",
+]
+build-backend = "setuptools.build_meta"
+
+# ---------------------------------------------------------------------------
+# Project metadata  (PEP 621)
+# ---------------------------------------------------------------------------
+[project]
+name = "fasm"
+description = "FPGA Assembly (FASM) Parser and Generation library"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+authors = [
+    { name = "F4PGA Authors", email = "f4pga-wg@lists.chipsalliance.org" },
+]
+requires-python = ">=3.12"
+dynamic = ["version"]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+
+dependencies = ["textx"]
+
+[project.urls]
+Homepage = "https://github.com/chipsalliance/fasm"
+Repository = "https://github.com/chipsalliance/fasm"
+
+[project.scripts]
+fasm = "fasm.tool:main"
+
+# Dev / test extras — install with:  uv pip install -e ".[dev]"
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "cython>=3",
+    "flake8",
+    "yapf==0.24.0",
+    "check-manifest",
+    "twine",
+]
+
+# ---------------------------------------------------------------------------
+# setuptools configuration
+# ---------------------------------------------------------------------------
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"fasm.parser" = ["*.tx", "*.pyx"]
+
+# ---------------------------------------------------------------------------
+# setuptools-scm  — derives version from git tags automatically
+# Replaces the hand-rolled update_version.py / fasm/version.py workflow.
+# ---------------------------------------------------------------------------
+[tool.setuptools_scm]
+write_to = "fasm/_version.py"
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# ---------------------------------------------------------------------------
+# flake8 (via setup.cfg shim is gone; use a .flake8 file or ruff instead)
+# Kept here for tools that honour pyproject.toml flake8 sections via plugins.
+# ---------------------------------------------------------------------------
+[tool.flake8]
+exclude = [".tox", "*.egg", "build", "data", "third_party", ".git"]
+select = ["E", "W", "F"]
+ignore = ["W503"]
+per-file-ignores = { "__init__.py" = ["F401"] }
