@@ -32,14 +32,6 @@ $(TOP_DIR)/third_party/make-env/conda.mk: $(TOP_DIR)/.gitmodules
 
 -include $(TOP_DIR)/third_party/make-env/conda.mk
 
-# Update the version file
-# ------------------------------------------------------------------------
-fasm/version.py: update_version.py | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) python ./update_version.py
-
-setup.py: fasm/version.py
-	touch setup.py --reference fasm/version.py
-
 # Build/install into the conda environment.
 # ------------------------------------------------------------------------
 build-clean:
@@ -82,7 +74,7 @@ local-install: setup.py
 # ------------------------------------------------------------------------
 
 # Run the tests
-test: fasm/version.py | $(CONDA_ENV_PYTHON)
+test: | $(CONDA_ENV_PYTHON)
 	$(IN_CONDA_ENV) py.test -s tests
 
 .PHONY: test

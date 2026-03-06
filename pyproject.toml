@@ -62,10 +62,8 @@ exclude = ["tests*"]
 
 # ---------------------------------------------------------------------------
 # setuptools-scm  — derives version from git tags automatically
-# Replaces the hand-rolled update_version.py / fasm/version.py workflow.
 # ---------------------------------------------------------------------------
 [tool.setuptools_scm]
-write_to = "fasm/_version.py"
 
 # ---------------------------------------------------------------------------
 # pytest

@@ -45,6 +45,5 @@ global-exclude .git
 global-exclude __pycache__
 global-exclude *.pyc
 exclude .gitmodules
-exclude update_version.py
 prune third_party
 prune .github

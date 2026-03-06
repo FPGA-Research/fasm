@@ -122,7 +122,6 @@ dmypy.json
 # Generated files
 /fasm/parser/tags.py
 /fasm/parser/antlr_to_tuple.c
-/fasm/_version.py
 
 # Former submodules — now fetched automatically by CMake FetchContent
 /third_party/antlr4/
