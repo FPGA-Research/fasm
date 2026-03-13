@@ -9,7 +9,6 @@ include AUTHORS
 include Makefile
 include pyproject.toml
 include setup.py
-include .clang-format
 include .style.yapf
 
 # Examples
@@ -31,20 +30,11 @@ prune docs/env
 
 # textx based parser
 recursive-include fasm/parser *.tx
-recursive-include fasm/parser *.pyx
-exclude fasm/parser/*.c
-
-# antlr based parser
-include src/*.cpp src/*.h
-recursive-include src/antlr *
-recursive-include src/cmake *
-include third_party/antlr4_lib/*.jar
 
 # Excludes
 global-exclude .git
 global-exclude __pycache__
 global-exclude *.pyc
 exclude .gitmodules
-exclude update_version.py
 prune third_party
 prune .github

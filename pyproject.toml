@@ -2,8 +2,6 @@
 requires = [
     "setuptools>=64",
     "wheel",
-    "cython>=3",
-    "packaging",
     "setuptools-scm>=8",
 ]
 build-backend = "setuptools.build_meta"
@@ -44,7 +42,6 @@ fasm = "fasm.tool:main"
 [project.optional-dependencies]
 dev = [
     "pytest",
-    "cython>=3",
     "flake8",
     "yapf==0.24.0",
     "check-manifest",
@@ -58,7 +55,7 @@ dev = [
 exclude = ["tests*"]
 
 [tool.setuptools.package-data]
-"fasm.parser" = ["*.tx", "*.pyx"]
+"fasm.parser" = ["*.tx"]
 
 # ---------------------------------------------------------------------------
 # setuptools-scm  — derives version from git tags automatically

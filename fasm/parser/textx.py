@@ -17,25 +17,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import print_function
-import textx
 import os.path
-from fasm.model import \
-    ValueFormat, SetFasmFeature, Annotation, FasmLine
 
-implementation = 'textx'
-"""
-Module name of the default parser implementation, accessible as fasm.parser
-"""
+import textx
+
+from fasm.model import Annotation, FasmLine, SetFasmFeature, ValueFormat
 
 
 def assert_max_width(width, value):
-    """ asserts if the value is greater than the width. """
+    """asserts if the value is greater than the width."""
     assert value < (2**width), (width, value)
 
 
 def verilog_value_to_int(verilog_value):
-    """ Convert VerilogValue model to width, value, value_format """
+    """Convert VerilogValue model to width, value, value_format"""
     width = None
 
     if verilog_value.plain_decimal:
@@ -45,16 +40,16 @@ def verilog_value_to_int(verilog_value):
         width = int(verilog_value.width)
 
     if verilog_value.hex_value:
-        value = int(verilog_value.hex_value.replace('_', ''), 16)
+        value = int(verilog_value.hex_value.replace("_", ""), 16)
         value_format = ValueFormat.VERILOG_HEX
     elif verilog_value.binary_value:
-        value = int(verilog_value.binary_value.replace('_', ''), 2)
+        value = int(verilog_value.binary_value.replace("_", ""), 2)
         value_format = ValueFormat.VERILOG_BINARY
     elif verilog_value.decimal_value:
-        value = int(verilog_value.decimal_value.replace('_', ''), 10)
+        value = int(verilog_value.decimal_value.replace("_", ""), 10)
         value_format = ValueFormat.VERILOG_DECIMAL
     elif verilog_value.octal_value:
-        value = int(verilog_value.octal_value.replace('_', ''), 8)
+        value = int(verilog_value.octal_value.replace("_", ""), 8)
         value_format = ValueFormat.VERILOG_OCTAL
     else:
         assert False, verilog_value
@@ -84,7 +79,8 @@ def set_feature_model_to_tuple(set_feature_model):
 
     if set_feature_model.feature_value:
         width, value, value_format = verilog_value_to_int(
-            set_feature_model.feature_value)
+            set_feature_model.feature_value
+        )
 
         if width is not None:
             assert width <= address_width
@@ -102,12 +98,12 @@ def set_feature_model_to_tuple(set_feature_model):
 
 def get_fasm_metamodel():
     return textx.metamodel_from_file(
-        file_name=os.path.join(os.path.dirname(__file__), 'fasm.tx'),
-        skipws=False)
+        file_name=os.path.join(os.path.dirname(__file__), "fasm.tx"), skipws=False
+    )
 
 
 def fasm_model_to_tuple(fasm_model):
-    """ Converts FasmFile model to list of FasmLine named tuples. """
+    """Converts FasmFile model to list of FasmLine named tuples."""
     if not fasm_model:
         return
 
@@ -123,8 +119,10 @@ def fasm_model_to_tuple(fasm_model):
             annotations = tuple(
                 Annotation(
                     name=annotation.name,
-                    value=annotation.value if annotation.value else '')
-                for annotation in fasm_line.annotations.annotations)
+                    value=annotation.value if annotation.value else "",
+                )
+                for annotation in fasm_line.annotations.annotations
+            )
 
         if fasm_line.comment:
             comment = fasm_line.comment.comment
@@ -137,7 +135,7 @@ def fasm_model_to_tuple(fasm_model):
 
 
 def parse_fasm_string(s):
-    """ Parse FASM string, returning list of FasmLine named tuples.
+    """Parse FASM string, returning list of FasmLine named tuples.
 
     >>> parse_fasm_string('a.b.c = 1')[0].set_feature.feature
     'a.b.c'

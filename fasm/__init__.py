@@ -17,10 +17,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-from __future__ import print_function
-
-import os.path
-
 from fasm.model import Annotation, FasmLine, SetFasmFeature, ValueFormat
 from fasm.parser import parse_fasm_filename, parse_fasm_string
 
