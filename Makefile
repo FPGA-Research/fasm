@@ -59,11 +59,6 @@ local-build: setup.py
 
 .PHONY: local-build
 
-local-build-shared: setup.py
-	python setup.py build --antlr-runtime=shared
-
-.PHONY: local-build-shared
-
 local-install: setup.py
 	python setup.py install
 
@@ -101,18 +96,8 @@ format-py: | $(CONDA_ENV_PYTHON)
 
 .PHONY: format-py
 
-# Format the C++ files
-define with_cpp_files
-  $(call with_files, '\.cpp$$\|\.h$$', $(1))
-endef
-
-format-cpp:
-	$(call with_cpp_files, clang-format -style=file -i)
-
-.PHONY: format-cpp
-
 # Format all the files!
-format: format-py format-cpp
+format: format-py
 	true
 
 # Check - ???
