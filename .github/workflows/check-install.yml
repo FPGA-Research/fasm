@@ -17,12 +17,6 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Install dependencies (Ubuntu)
-      if: startsWith(matrix.os, 'ubuntu')
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake default-jre-headless uuid-dev libantlr4-runtime-dev
-
     - name: Install dependencies (Mac OS X)
       if: startsWith(matrix.os, 'macos')
       run: |
