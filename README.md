@@ -1,8 +1,10 @@
 ## FPGA Assembly (FASM) Parser and Generation library
 
-This repository documents the FASM file format and provides parsing libraries and simple tooling for working with FASM files.
+This is a fork of [chipsalliance/fasm](https://github.com/chipsalliance/fasm), adapted for use in the [FABulous](https://github.com/FPGA-Research/FABulous) flow. The original repository is no longer actively maintained.
 
-It provides a pure Python parser based on `textx` for parsing and generating FASM files.
+This fork removes the ANTLR-based C++ parser that was present in the original. The original library shipped two parsers — a fast C++/ANTLR parser and a pure Python textX fallback — and would print a confusing runtime warning whenever ANTLR was not installed. Since FABulous only needs the textX parser and the ANTLR build required cmake, Java, and native libraries, the C++ parser has been removed entirely to keep installation simple and warning-free.
+
+This repository documents the FASM file format and provides parsing libraries and simple tooling for working with FASM files using a pure Python parser based on `textx`.
 
 ## Installation
 
