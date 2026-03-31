@@ -14,132 +14,64 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# The top directory where environment will be created.
-TOP_DIR := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-
-# A pip `requirements.txt` file.
-# https://pip.pypa.io/en/stable/reference/pip_install/#requirements-file-format
-REQUIREMENTS_FILE := requirements.txt
-
-# A conda `environment.yml` file.
-# https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
-ENVIRONMENT_FILE := environment.yml
-
-# Rule to checkout the git submodule if it wasn't cloned.
-$(TOP_DIR)/third_party/make-env/conda.mk: $(TOP_DIR)/.gitmodules
-	cd $(TOP_DIR); git submodule update --init third_party/make-env
-	touch $(TOP_DIR)/third_party/make-env/conda.mk
-
--include $(TOP_DIR)/third_party/make-env/conda.mk
-
-# Build/install into the conda environment.
+# Build/install
 # ------------------------------------------------------------------------
 build-clean:
 	rm -rf dist fasm.egg-info
 
 .PHONY: build-clean
 
-build: | $(CONDA_ENV_PYTHON)
+build:
 	make build-clean
-	$(IN_CONDA_ENV) python -m build
+	python -m build
 
 .PHONY: build
 
-# Install into environment
-install: | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) pip install -e .
+install:
+	pip install -e .
 
 .PHONY: install
-
-
-# Build/install locally rather than inside the environment.
-# ------------------------------------------------------------------------
-local-build:
-	python -m build
-
-.PHONY: local-build
-
-local-install:
-	pip install .
-
-.PHONY: local-install
-
 
 # Test, lint, auto-format.
 # ------------------------------------------------------------------------
 
-# Run the tests
-test: | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) py.test -s tests
+test:
+	pytest -s tests
 
 .PHONY: test
 
-# Find files to apply tools to while ignoring files.
-define with_files
-  $(IN_CONDA_ENV) git ls-files | grep -ve '^third_party\|^\.|^env' | grep -e $(1) | xargs -r -P $$(nproc) $(2)
-endef
+# Find Python files tracked by git, excluding third_party and hidden dirs.
+PY_FILES := $(shell git ls-files | grep -ve '^third_party\|^\.|^env' | grep -e '\.py$$')
 
-# Lint the python files
-lint: | $(CONDA_ENV_PYTHON)
-	$(call with_py_files, flake8)
+lint:
+	flake8 $(PY_FILES)
 
 .PHONY: lint
 
-# Format the python files
-define with_py_files
-  $(call with_files, '.py$$', $(1))
-endef
-
-PYTHON_FORMAT ?= yapf
-format-py: | $(CONDA_ENV_PYTHON)
-	$(call with_py_files, yapf -p -i)
+format-py:
+	yapf -p -i $(PY_FILES)
 
 .PHONY: format-py
 
-# Format all the files!
 format: format-py
-	true
 
-# Check - ???
-check: | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) twine check dist/*
+.PHONY: format
 
-.PHONY: check
-
-# Check files have license headers.
+# Checks
+# ------------------------------------------------------------------------
 check-license:
 	@./.github/check_license.sh
 
 .PHONY: check-license
 
-# Check python scripts have the correct headers.
 check-python-scripts:
 	@./.github/check_python_scripts.sh
 
 .PHONY: check-python-scripts
 
-# Upload to PyPI servers
+# Upload to PyPI
 # ------------------------------------------------------------------------
-
-# PYPI_TEST = --repository-url https://test.pypi.org/legacy/
-PYPI_TEST = --repository testpypi
-
-# Check before uploading
-upload-check: build | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) twine check dist/*
+upload-check: build
+	twine check dist/*
 
 .PHONY: upload-check
-
-# Upload to test.pypi.org
-upload-test: check | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) twine upload ${PYPI_TEST}  dist/*.tar.gz
-	$(IN_CONDA_ENV) twine upload ${PYPI_TEST}  dist/*.whl
-
-.PHONY: upload-test
-
-# Upload to the real pypi.org
-upload: check | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) twine upload ${PYPI_TEST}  dist/*.tar.gz
-	$(IN_CONDA_ENV) twine upload ${PYPI_TEST}  dist/*.whl
-
-.PHONY: upload

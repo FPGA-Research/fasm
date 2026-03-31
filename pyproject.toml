@@ -70,4 +70,5 @@ testpaths = ["tests"]
 exclude = [".tox", "*.egg", "build", "data", "third_party", ".git"]
 select = ["E", "W", "F"]
 ignore = ["W503"]
+max-line-length = 100
 per-file-ignores = { "__init__.py" = ["F401"] }
