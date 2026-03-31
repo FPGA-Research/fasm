@@ -87,8 +87,7 @@ def set_feature_to_str(set_feature, check_if_canonical=False):
                 value=set_feature.value,
                 width=feature_width,
                 value_format=set_feature.value_format,
-            )
-        )
+            ))
 
     return "{}{}{}".format(feature, address, feature_value)
 
@@ -178,9 +177,7 @@ def fasm_line_to_string(fasm_line, canonical=False):
         annotations = "{{ {} }}".format(
             ", ".join(
                 '{} = "{}"'.format(annotation.name, annotation.value)
-                for annotation in fasm_line.annotations
-            )
-        )
+                for annotation in fasm_line.annotations))
 
         parts.append(annotations)
 

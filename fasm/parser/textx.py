@@ -79,8 +79,7 @@ def set_feature_model_to_tuple(set_feature_model):
 
     if set_feature_model.feature_value:
         width, value, value_format = verilog_value_to_int(
-            set_feature_model.feature_value
-        )
+            set_feature_model.feature_value)
 
         if width is not None:
             assert width <= address_width
@@ -98,8 +97,8 @@ def set_feature_model_to_tuple(set_feature_model):
 
 def get_fasm_metamodel():
     return textx.metamodel_from_file(
-        file_name=os.path.join(os.path.dirname(__file__), "fasm.tx"), skipws=False
-    )
+        file_name=os.path.join(os.path.dirname(__file__), "fasm.tx"),
+        skipws=False)
 
 
 def fasm_model_to_tuple(fasm_model):
@@ -120,9 +119,7 @@ def fasm_model_to_tuple(fasm_model):
                 Annotation(
                     name=annotation.name,
                     value=annotation.value if annotation.value else "",
-                )
-                for annotation in fasm_line.annotations.annotations
-            )
+                ) for annotation in fasm_line.annotations.annotations)
 
         if fasm_line.comment:
             comment = fasm_line.comment.comment
