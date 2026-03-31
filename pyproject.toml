@@ -40,7 +40,7 @@ fasm = "fasm.tool:main"
 
 # Dev / test extras — install with:  uv pip install -e ".[dev]"
 [project.optional-dependencies]
-dev = ["pytest", "flake8", "yapf==0.24.0", "check-manifest", "twine"]
+dev = ["pytest", "flake8", "yapf==0.24.0", "twine"]
 
 # ---------------------------------------------------------------------------
 # setuptools configuration
