@@ -39,28 +39,28 @@ build-clean:
 
 .PHONY: build-clean
 
-build: setup.py | $(CONDA_ENV_PYTHON)
+build: | $(CONDA_ENV_PYTHON)
 	make build-clean
-	$(IN_CONDA_ENV) python setup.py sdist bdist_wheel
+	$(IN_CONDA_ENV) python -m build
 
 .PHONY: build
 
 # Install into environment
-install: setup.py | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) python setup.py develop
+install: | $(CONDA_ENV_PYTHON)
+	$(IN_CONDA_ENV) pip install -e .
 
 .PHONY: install
 
 
 # Build/install locally rather than inside the environment.
 # ------------------------------------------------------------------------
-local-build: setup.py
-	python setup.py build
+local-build:
+	python -m build
 
 .PHONY: local-build
 
-local-install: setup.py
-	python setup.py install
+local-install:
+	pip install .
 
 .PHONY: local-install
 
@@ -101,8 +101,8 @@ format: format-py
 	true
 
 # Check - ???
-check: setup.py | $(CONDA_ENV_PYTHON)
-	$(IN_CONDA_ENV) python setup.py check -m -s
+check: | $(CONDA_ENV_PYTHON)
+	$(IN_CONDA_ENV) twine check dist/*
 
 .PHONY: check
 
