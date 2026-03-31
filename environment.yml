@@ -1,6 +1,0 @@
-name: make-env
-dependencies:
-  - pip
-  - python
-  - pip:
-    - -r requirements.txt
