@@ -23,7 +23,7 @@ from fasm.parser import parse_fasm_filename, parse_fasm_string
 try:
     from importlib.metadata import version as _pkg_version
 
-    __version__ = _pkg_version("fasm")
+    __version__ = _pkg_version("FABulous-fasm")
 except Exception:
     __version__ = "UNKNOWN"
 

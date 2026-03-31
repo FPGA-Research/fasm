@@ -8,7 +8,7 @@ This repository documents the FASM file format and provides parsing libraries an
 
 ## Installation
 
-    pip install fasm
+    pip install FABulous-fasm
 
 ## Development
 

@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 # Project metadata  (PEP 621)
 # ---------------------------------------------------------------------------
 [project]
-name = "fasm"
+name = "FABulous-fasm"
 description = "FPGA Assembly (FASM) Parser and Generation library"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
@@ -32,8 +32,8 @@ classifiers = [
 dependencies = ["textx"]
 
 [project.urls]
-Homepage = "https://github.com/chipsalliance/fasm"
-Repository = "https://github.com/chipsalliance/fasm"
+Homepage = "https://github.com/FPGA-Research/fasm"
+Repository = "https://github.com/FPGA-Research/fasm"
 
 [project.scripts]
 fasm = "fasm.tool:main"
