@@ -15,6 +15,10 @@ This repository documents the FASM file format and provides parsing libraries an
     pip install -e ".[dev]"
     pytest tests/
 
+## Documentation
+
+- [FASM Specification](docs/specification.md)
+
 ## FPGA Assembly (FASM)
 
 FPGA Assembly is a file format designed by the
