@@ -55,6 +55,8 @@ exclude = ["tests*"]
 # setuptools-scm  — derives version from git tags automatically
 # ---------------------------------------------------------------------------
 [tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-date"
 
 # ---------------------------------------------------------------------------
 # pytest
