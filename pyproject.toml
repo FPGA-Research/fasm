@@ -1,52 +1,46 @@
 [build-system]
-requires = [
-    "setuptools>=64",
-    "wheel",
-    "setuptools-scm>=8",
-]
+requires = ["setuptools>=64", "wheel", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 # ---------------------------------------------------------------------------
 # Project metadata  (PEP 621)
 # ---------------------------------------------------------------------------
 [project]
-name = "fasm"
+name = "FABulous-fasm"
 description = "FPGA Assembly (FASM) Parser and Generation library"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
 authors = [
-    { name = "F4PGA Authors", email = "f4pga-wg@lists.chipsalliance.org" },
+  { name = "FABulous Maintainers", email = "fpga.research.group@gmail.com" },
+]
+# Original authors of chipsalliance/fasm from which this is forked.
+maintainers = [
+  { name = "F4PGA Authors", email = "f4pga-wg@lists.chipsalliance.org" },
 ]
 requires-python = ">=3.12"
 dynamic = ["version"]
 
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
 ]
 
 dependencies = ["textx"]
 
 [project.urls]
-Homepage = "https://github.com/chipsalliance/fasm"
-Repository = "https://github.com/chipsalliance/fasm"
+Homepage = "https://github.com/FPGA-Research/FABulous-fasm"
+Repository = "https://github.com/FPGA-Research/FABulous-fasm"
 
 [project.scripts]
 fasm = "fasm.tool:main"
 
 # Dev / test extras — install with:  uv pip install -e ".[dev]"
 [project.optional-dependencies]
-dev = [
-    "pytest",
-    "flake8",
-    "yapf==0.24.0",
-    "check-manifest",
-    "twine",
-]
+dev = ["pytest", "flake8", "yapf>=0.40.0", "tox"]
 
 # ---------------------------------------------------------------------------
 # setuptools configuration
@@ -59,10 +53,10 @@ exclude = ["tests*"]
 
 # ---------------------------------------------------------------------------
 # setuptools-scm  — derives version from git tags automatically
-# Replaces the hand-rolled update_version.py / fasm/version.py workflow.
 # ---------------------------------------------------------------------------
 [tool.setuptools_scm]
-write_to = "fasm/_version.py"
+version_scheme = "guess-next-dev"
+local_scheme = "node-and-date"
 
 # ---------------------------------------------------------------------------
 # pytest
@@ -78,4 +72,5 @@ testpaths = ["tests"]
 exclude = [".tox", "*.egg", "build", "data", "third_party", ".git"]
 select = ["E", "W", "F"]
 ignore = ["W503"]
+max-line-length = 100
 per-file-ignores = { "__init__.py" = ["F401"] }

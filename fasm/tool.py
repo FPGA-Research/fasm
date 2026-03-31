@@ -27,8 +27,9 @@ def main():
     parser = argparse.ArgumentParser("FASM tool")
     parser.add_argument("file", help="Filename to process")
     parser.add_argument(
-        "--canonical", action="store_true", help="Return canonical form of FASM."
-    )
+        "--canonical",
+        action="store_true",
+        help="Return canonical form of FASM.")
 
     args = parser.parse_args()
 

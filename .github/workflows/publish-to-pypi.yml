@@ -1,217 +1,62 @@
-name: PyPI
+name: Publish FABulous-fasm to PyPI
 
 on:
-  push:
-  pull_request:
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
-
-  Source:
-    runs-on: ubuntu-20.04
-    name: Source
-
-    steps:
-    - name: 🧰 Checkout
-      uses: actions/checkout@v2
-      with:
-        # Always clone the full depth so git-describe works.
-        fetch-depth: 0
-        submodules: true
-
-    - name: Install dependencies (Ubuntu)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake default-jre-headless uuid-dev libantlr4-runtime-dev
-
-    - name: 🐍 Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
-
-    - name: Install build dependencies
-      run: |
-        python -m pip install -U pip
-        python -m pip install -r requirements.txt
-        python update_version.py
-
-    - name: Install package dependencies
-      run: |
-        python setup.py install
-
-    - name: 🚧 Build distribution 📦
-      run: |
-        python setup.py sdist
-
-    - name: Check distribution 📦
-      run: |
-        twine check dist/*
-
-    - name: 📤 Publish source to Test PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
-      if: env.TWINE_PASSWORD != null
-      run: |
-        twine upload --skip-existing --verbose --repository testpypi dist/*.tar.gz
-
-    - name: 📤 Publish source to PyPI
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'chipsalliance/fasm'
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        twine upload dist/*
-
-  Linux:
-    strategy:
-      matrix:
-        include:
-          - { name: '3.6', python-version: 'cp36-cp36m' }
-          - { name: '3.7', python-version: 'cp37-cp37m' }
-          - { name: '3.8', python-version: 'cp38-cp38' }
-          - { name: '3.9', python-version: 'cp39-cp39' }
-      fail-fast: false
-
-    name: '${{ matrix.name }} • manylinux'
+  build:
+    name: Build distribution
     runs-on: ubuntu-latest
 
     steps:
-    - name: 🧰 Checkout
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v5
       with:
-        # Always clone the full depth so git-describe works.
         fetch-depth: 0
-        submodules: true
-
-    - name: 🐍 Set up Python
-      uses: actions/setup-python@v2
-
-    - name: Install build dependencies
-      run: |
-        python -m pip install -U pip
-        python -m pip install twine auditwheel
-        python update_version.py
-
-    - name: 🚧 Build distribution 📦
-      uses: RalfG/python-wheels-manylinux-build@v0.3.3-manylinux2010_x86_64
+        persist-credentials: false
+    - name: Install uv
+      uses: astral-sh/setup-uv@v8
+    - name: Set up Python
+      uses: actions/setup-python@v6
       with:
-        build-requirements: 'cython'
-        pre-build-command: 'bash .github/workflows/manylinux-install-cmake.sh'
-        python-versions: ${{ matrix.python-version }}
-        #pip-wheel-args: '-w ./dist --no-deps --verbose'
+        python-version: "3.12"
+    - name: Build a binary wheel and a source tarball
+      run: uv build
+    - name: Store the distribution packages
+      uses: actions/upload-artifact@v7
+      with:
+        name: python-package-distributions
+        path: dist/
 
-    - name: List distribution 📦
-      run: |
-        # Fix permissions
-        echo "::group::Fixing permission"
-        ls -l dist/*
-        echo $USER
-        whoami
-        sudo chown -R $USER dist
-        ls -l dist/*
-        echo "::endgroup::"
-        # Remove the non-manylinux versions
-        rm -v dist/*linux_x86_64*.whl
-        ls -l dist/*
+  publish-to-pypi:
+    name: Publish to PyPI (${{ github.event.release.prerelease && 'Pre-release' || 'Stable' }})
+    needs:
+    - build
+    runs-on: ubuntu-latest
 
-    - name: Check distribution 📦
-      run: |
-        for WHEEL in dist/*.whl; do
-          echo
-          echo "::group::Checking $WHEEL"
-          echo
-          python -m zipfile --list $WHEEL
-          echo
-          auditwheel show $WHEEL
-          echo
-          twine check $WHEEL
-          echo
-          echo "::endgroup::"
-        done
+    environment:
+      name: pypi
+      url: https://pypi.org/p/FABulous-fasm
 
-    - name: 📤 Publish wheels to Test PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
-      if: env.TWINE_PASSWORD != null
-      run: |
-        twine upload --skip-existing --verbose --repository testpypi dist/*.whl
-
-    - name: 📤 Publish wheels to PyPI
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'chipsalliance/fasm'
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        twine upload dist/*.whl
-
-  MacAndWindows:
-    strategy:
-      matrix:
-        os: [windows-latest, macos-latest]
-        python-version: [ '3.6', '3.7', '3.8', '3.9', 'pypy-3.6', 'pypy-3.7' ]
-      fail-fast: false
-
-    name: ${{ matrix.python-version }} • ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
 
     steps:
-    - name: 🧰 Checkout
-      uses: actions/checkout@v2
+    - name: Download all the dists
+      uses: actions/download-artifact@v8
       with:
-        # Always clone the full depth so git-describe works.
-        fetch-depth: 0
-        submodules: true
+        name: python-package-distributions
+        path: dist/
 
-    - name: Install dependencies (Mac OS X)
-      if: startsWith(matrix.os, 'macos')
+    - name: Check release type
       run: |
-        true
+        if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+          echo "📦 Publishing PRE-RELEASE to PyPI"
+          echo "Users will need to use: pip install FABulous-fasm --pre"
+        else
+          echo "🚀 Publishing STABLE RELEASE to PyPI"
+          echo "Users can install with: pip install FABulous-fasm"
+        fi
 
-    - name: Install dependencies (Windows)
-      if: startsWith(matrix.os, 'windows')
-      run: |
-        true
-
-    - name: 🐍 Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install build dependencies
-      run: |
-        python -m pip install -U pip
-        python -m pip install -r requirements.txt
-        python update_version.py
-
-    - name: Install package dependencies
-      run: |
-        python setup.py install
-
-    - name: 🚧 Build distribution 📦
-      run: |
-        python setup.py bdist_wheel
-
-    - name: Check distribution 📦
-      shell: bash
-      run: |
-        python -m zipfile -l dist/*
-        echo
-        twine check dist/*
-
-    - name: 📤 Publish wheels to Test PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TEST_PASSWORD }}
-      if: env.TWINE_PASSWORD != null
-      run: |
-        twine upload --skip-existing --verbose --repository testpypi dist/*.whl
-
-    - name: 📤 Publish wheels to PyPI
-      if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'chipsalliance/fasm'
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-      run: |
-        twine upload dist/*.whl
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1

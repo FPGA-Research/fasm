@@ -34,6 +34,7 @@ def check_round_trip(test, result):
 
 
 class TestFasm(unittest.TestCase):
+
     def test_blank_file(self):
         result = list(fasm.parser.parse_fasm_filename(example("blank.fasm")))
         self.assertEqual(result, [])
@@ -54,7 +55,8 @@ class TestFasm(unittest.TestCase):
         check_round_trip(self, result)
 
     def test_one_line_feature(self):
-        result = list(fasm.parser.parse_fasm_filename(example("feature_only.fasm")))
+        result = list(
+            fasm.parser.parse_fasm_filename(example("feature_only.fasm")))
         self.assertEqual(
             result,
             [
@@ -72,8 +74,7 @@ class TestFasm(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            fasm.fasm_tuple_to_string(result), "EXAMPLE_FEATURE.X0.Y0.BLAH\n"
-        )
+            fasm.fasm_tuple_to_string(result), "EXAMPLE_FEATURE.X0.Y0.BLAH\n")
         check_round_trip(self, result)
 
     def test_examples_file(self):

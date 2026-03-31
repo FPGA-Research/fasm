@@ -1,46 +1,23 @@
 ## FPGA Assembly (FASM) Parser and Generation library
 
-This repository documents the FASM file format and provides parsing libraries and simple tooling for working with FASM files.
+This is a fork of [chipsalliance/fasm](https://github.com/chipsalliance/fasm), adapted for use in the [FABulous](https://github.com/FPGA-Research/FABulous) flow. The original repository is no longer actively maintained.
 
-It provides both a pure Python parser based on `textx` and a significantly faster C parser based on `ANTLR`. The library will try and use the ANTLR parser first and fall back to the `textx` parser if the compiled module is not found.
+This fork removes the ANTLR-based C++ parser that was present in the original. The original library shipped two parsers — a fast C++/ANTLR parser and a pure Python textX fallback — and would print a confusing runtime warning whenever ANTLR was not installed. Since FABulous only needs the textX parser and the ANTLR build required cmake, Java, and native libraries, the C++ parser has been removed entirely to keep installation simple and warning-free.
 
-Which parsers are supported by your currently install can be found via `python3 -c "import fasm.parser as p; print(p.available)`. The currently in use parser can be found via `fasm.parser.implementation`.
+This repository documents the FASM file format and provides parsing libraries and simple tooling for working with FASM files using a pure Python parser based on `textx`.
 
-It is highly recommended to use the ANTLR parser as it is about 15 times faster.
+## Installation
 
-functions for parsing and generating FASM files.
+    pip install FABulous-fasm
 
-## Build Instructions
+## Development
 
-CMake is required, and ANTLR has a few dependencies:
+    pip install -e ".[dev]"
+    pytest tests/
 
-    sudo apt install cmake default-jre-headless uuid-dev libantlr4-runtime-dev
+## Documentation
 
-Pull dependencies in `third_party`:
-
-    git submodule update --init
-
-Build:
-
-    make build
-
-Test with:
-
-    python setup.py test
-
-The ANTLR runtime can either be linked statically or as a shared library. Use the
-`--antlr-runtime=[static|shared]` flag to select between the two modes e.g.:
-
-    python setup.py install --antlr-runtime=shared
-
-Or, using `pip`:
-
-    pip install . --install-option="--antlr-runtime=shared" --no-use-pep517
-
-The runtime will be built and statically linked by default. This flag is available in the build_ext, build, develop, and install commands.
-
-The --no-use-pep517 flag is needed because there is currently no way to pass flags with PEP517.
-Relevant issue: https://github.com/pypa/pip/issues/5771
+- [FASM Specification](docs/specification.md)
 
 ## FPGA Assembly (FASM)
 
