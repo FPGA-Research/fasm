@@ -69,9 +69,3 @@ check-python-scripts:
 
 .PHONY: check-python-scripts
 
-# Upload to PyPI
-# ------------------------------------------------------------------------
-upload-check: build
-	twine check dist/*
-
-.PHONY: upload-check
